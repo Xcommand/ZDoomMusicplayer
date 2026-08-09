@@ -1,0 +1,20 @@
+OptionMenu "OptionsMenu"
+{
+    Submenu "Music Player Settings", "MusicPlayerMenu"
+}
+
+OptionMenu "MusicPlayerMenu"
+{
+    Title "Music Player Options"
+    
+    Option "Play Random Track", "music_player_shuffle", "OnOff"
+    Option "Repeat Current Track", "music_player_repeat", "OnOff" 
+    Option "Used Audio Formats", "music_player_format", "MusicFormats"
+}
+
+OptionValue "MusicFormats"
+{
+    0, "MIDI + MP3/OGG/FLAC"
+    1, "Only MIDI"
+    2, "Only MP3/OGG/FLAC"
+}

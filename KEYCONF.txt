@@ -1,0 +1,7 @@
+addkeysection "Local Music Player" MusicPlayerSection
+
+addmenukey "Next Track" mp_nexttrack
+defaultbind ] mp_nexttrack
+
+addmenukey "Previous Track" mp_prevtrack
+defaultbind [ mp_prevtrack
