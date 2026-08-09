@@ -54,6 +54,6 @@ Just load any folder that has /music/ inside and mod will add every playable fil
 12. jp_smoothwater.pk3
 13. NiceWallBlood.pk3
 14. D:/Discography/ <--- this is where i put all my custom music. It has folder /music/ inside with different subfolders where all my custom .mp3 files located.
-15. /MusicPlayer.pk3
+15. MusicPlayer.pk3
 
 Tested on GZDoom 4.10.0/4.14.1 and on UZDoom 4.14.3/5.0.0 and it works fine.
