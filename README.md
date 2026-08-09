@@ -1,4 +1,4 @@
-### Dynamic Music Scanner.
+### Dynamic Music Player.
 
 If you are tired of listening to the same map tracks or manually changing music via console commands, this mod automates everything by building a dynamic, real-time playlist directly from your loaded files.
 
