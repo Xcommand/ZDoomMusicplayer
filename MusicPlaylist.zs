@@ -96,19 +96,9 @@ class DynamicMusicScanner : StaticEventHandler
         {
             currentTrackIndex = 0;
         }
-    }
 
-    void CheckAndRefreshPlaylist()
-    {
-        CVar formatCVar = CVar.FindCVar("music_player_format");
-        if (formatCVar != null)
-        {
-            int currentFilter = formatCVar.GetInt();
-            if (currentFilter != lastFormatFilter)
-            {
-                ScanLoadedLumps();
-            }
-        }
+        // Вывод сообщения в консоль о количестве загруженных треков
+        Console.Printf("[Music Player] Format changed or initialized. Loaded %d tracks.", globalPlaylist.Size());
     }
 
     override bool InputProcess(InputEvent e)
@@ -144,6 +134,19 @@ class DynamicMusicScanner : StaticEventHandler
         {
             SwitchToPrevTrack();
         }
+        else if (e.Name == "msg_mp_refresh")
+        {
+            // Получаем актуальный номер из CVar и сравниваем его в безопасном игровом контексте
+            CVar formatCVar = CVar.FindCVar("music_player_format");
+            if (formatCVar != null)
+            {
+                int currentFilter = formatCVar.GetInt();
+                if (currentFilter != lastFormatFilter)
+                {
+                    ScanLoadedLumps();
+                }
+            }
+        }
     }
 
     override void WorldLoaded(WorldEvent e)
@@ -156,9 +159,25 @@ class DynamicMusicScanner : StaticEventHandler
         PlayCurrentPlaylistTrack();
     }
 
+    override void UiTick()
+    {
+        // Из UI контекста мы только читаем переменную CVar и переменную playsim.
+        // Мы НЕ пишем в lastFormatFilter отсюда, избегая ошибок компиляции.
+        CVar formatCVar = CVar.FindCVar("music_player_format");
+        if (formatCVar != null)
+        {
+            int currentFilter = formatCVar.GetInt();
+            if (currentFilter != lastFormatFilter)
+            {
+                // Посылаем сигнал. Сетевой обработчик проверит изменения и обновит lastFormatFilter
+                EventHandler.SendNetworkEvent("msg_mp_refresh");
+            }
+        }
+    }
+
     override void WorldTick()
     {
-        // Уменьшаем таймер "тоста" каждый тик независимо от задержки переключения плеера
+        // Уменьшаем таймер "тоста" каждый тик
         if (toastTimer > 0)
         {
             toastTimer--;
@@ -179,8 +198,6 @@ class DynamicMusicScanner : StaticEventHandler
 
             if (MusPlaying.name == "")
             {
-                CheckAndRefreshPlaylist();
-
                 CVar repeatCVar = CVar.FindCVar("music_player_repeat");
                 int isRepeat = 0;
                 if (repeatCVar != null)
@@ -202,8 +219,6 @@ class DynamicMusicScanner : StaticEventHandler
 
     void SwitchToNextTrack()
     {
-        CheckAndRefreshPlaylist();
-
         if (globalPlaylist.Size() == 0) return;
 
         playbackHistory.Push(currentTrackIndex);
@@ -236,8 +251,6 @@ class DynamicMusicScanner : StaticEventHandler
 
     void SwitchToPrevTrack()
     {
-        CheckAndRefreshPlaylist();
-
         if (globalPlaylist.Size() == 0) return;
 
         if (playbackHistory.Size() > 0)
@@ -289,62 +302,49 @@ class DynamicMusicScanner : StaticEventHandler
             trackName = trackName.Mid(lastSlash + 1);
         }
         
-        // Передаем очищенное имя трека в систему уведомления и запускаем таймер
         toastTrackName = trackName;
         toastTimer = TOAST_DURATION;
-
-        // СТАНДАРТНЫЙ ТЕКСТ ПО ЦЕНТРУ ЭКРАНА ОТКЛЮЧЕН:
-        // Строка Console.MidPrint удалена, чтобы работал только красивый тост сверху
     }
 
-    // Финальная очищенная отрисовка тоста без использования флагов выравнивания
     override void RenderOverlay(RenderEvent e)
     {
         if (toastTimer <= 0 || toastTrackName == "") return;
 
-        // Базовое виртуальное разрешение UI
         int baseWidth = 800;
         int baseHeight = 600;
 
-        // Расчет плавного выпадания и скрытия (по 15 тиков на анимацию)
         double yOffset = 0;
         if (toastTimer > TOAST_DURATION - 15) 
         {
-            // Плавное выпадание сверху вниз
             yOffset = -50 * (double(toastTimer - (TOAST_DURATION - 15)) / 15.0);
         }
         else if (toastTimer < 15) 
         {
-            // Плавный уход обратно вверх
             yOffset = -50 * (1.0 - (double(toastTimer) / 15.0));
         }
 
-        // Формируем итоговый текст для отображения
         string fullMessage = "Now Playing: " .. toastTrackName;
 
-        // Безопасное получение стандартного крупного шрифта Doom
-        Font clearFont = Font.GetFont("BIGFONT");
+        Font clearFont = Font.GetFont("SMALLFONT");
         if (clearFont == null) 
         {
-            clearFont = BigFont; 
+            clearFont = SmallFont; 
         }
 
-        // Математическое центрирование: вычисляем левую координату от центра экрана
         int textWidth = clearFont.StringWidth(fullMessage);
         double drawX = (baseWidth / 2.0) - (textWidth / 2.0);
-        double drawY = 25 + yOffset;
+        double drawY = 20 + yOffset;
         
-        // Рисуем черную тень текста со смещением (для читаемости на любом фоне)
+        // Тень
         Screen.DrawText(clearFont, Font.CR_BLACK, drawX, drawY + 1, fullMessage, 
             DTA_VirtualWidth, baseWidth, 
             DTA_VirtualHeight, baseHeight, 
             DTA_KeepRatio, true);
             
-        // Рисуем сам текст золотым цветом
+        // Золотой текст
         Screen.DrawText(clearFont, Font.CR_GOLD, drawX, drawY, fullMessage, 
             DTA_VirtualWidth, baseWidth, 
             DTA_VirtualHeight, baseHeight, 
             DTA_KeepRatio, true);
     }
-
 }
