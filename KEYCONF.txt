@@ -5,3 +5,6 @@ defaultbind ] mp_nexttrack
 
 addmenukey "Previous Track" mp_prevtrack
 defaultbind [ mp_prevtrack
+
+addmenukey "Ignore Current Track" mp_ignoretrack
+defaultbind "k" mp_ignoretrack 

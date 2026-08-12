@@ -1,3 +1,6 @@
-user int music_player_shuffle = 0;
-user int music_player_format = 0;
-user int music_player_repeat = 0; 
+server int music_player_format = 0;
+server int music_player_shuffle = 0;
+server int music_player_repeat = 0;
+server int music_player_no_iwad = 0;
+nosave string music_player_ignored_wads = "";
+nosave string music_player_ignored_tracks = "";

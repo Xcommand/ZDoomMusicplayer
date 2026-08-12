@@ -2,19 +2,37 @@ OptionMenu "OptionsMenu"
 {
     Submenu "Music Player Settings", "MusicPlayerMenu"
 }
-
 OptionMenu "MusicPlayerMenu"
 {
     Title "Music Player Options"
-    
     Option "Play Random Track", "music_player_shuffle", "OnOff"
     Option "Repeat Current Track", "music_player_repeat", "OnOff" 
     Option "Used Audio Formats", "music_player_format", "MusicFormats"
+    Option "Don't use iWad music", "music_player_no_iwad", "NoIwadMusicOptions"
+    Submenu "Ignored Content...", "IgnoredMenu"
 }
-
 OptionValue "MusicFormats"
 {
     0, "MIDI + MP3/OGG/FLAC"
     1, "Only MIDI"
     2, "Only MP3/OGG/FLAC"
+}
+OptionValue "NoIwadMusicOptions"
+{
+    0, "Off"
+    1, "On"
+}
+OptionMenu "IgnoredMenu"
+{
+    Title "Ignored Content Manager"
+    Submenu "Ignore WAD/PK3 list", "ListWadsMenu"
+    Submenu "Ignore Track list", "ListTracksMenu"
+}
+ListMenu "ListWadsMenu"
+{
+    Class "ListWadsMenu"
+}
+ListMenu "ListTracksMenu"
+{
+    Class "ListTracksMenu"
 }
