@@ -289,6 +289,7 @@ class DynamicMusicScanner : StaticEventHandler
         if (lastSlash != -1) trackName = trackName.Mid(lastSlash + 1);
         toastTrackName = trackName;
         toastTimer = TOAST_DURATION;
+		Console.Printf("[Music Player] Now playing:\cf %s ", toastTrackName);
     }
     override void RenderOverlay(RenderEvent e)
     {
