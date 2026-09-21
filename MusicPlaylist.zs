@@ -1,11 +1,11 @@
 class DynamicMusicScanner : StaticEventHandler
 {
-    Array<string> globalPlaylist; 
+    Array<string> globalPlaylist;
     Array<int> playbackHistory;
     int currentTrackIndex;
-    int checkTimer;       
+    int checkTimer;
     int lastFormatFilter;
-    int justSwitchedDelay; 
+    int justSwitchedDelay;
     string toastTrackName;
     int toastTimer;
     const TOAST_DURATION = 105;
@@ -107,8 +107,8 @@ class DynamicMusicScanner : StaticEventHandler
             {
                 if (IsWadIgnored("iwad_tracks")) continue;
                 if (noIwadMusic && lumpName.Mid(0, 2) == "D_") continue;
-                if (formatFilter == 1) continue; 
-                if (globalPlaylist.Find(lumpName) == globalPlaylist.Size()) globalPlaylist.Push(lumpName); 
+                if (formatFilter == 1) continue;
+                if (globalPlaylist.Find(lumpName) == globalPlaylist.Size()) globalPlaylist.Push(lumpName);
                 continue;
             }
             if (fullPath.Mid(0, 6) == "music/" && len > 4)
@@ -123,11 +123,11 @@ class DynamicMusicScanner : StaticEventHandler
                 string ext5 = fullPath.Mid(len - 5);
                 bool isMidi = (ext4 == ".mid" || ext4 == ".mus");
                 bool isDigital = (ext4 == ".ogg" || ext4 == ".mp3" || ext5 == ".flac");
-                if (formatFilter == 1 && !isMidi) continue;       
-                if (formatFilter == 2 && !isDigital) continue;    
+                if (formatFilter == 1 && !isMidi) continue;
+                if (formatFilter == 2 && !isDigital) continue;
                 if (isMidi || isDigital)
                 {
-                    if (globalPlaylist.Find(fullPath) == globalPlaylist.Size()) globalPlaylist.Push(fullPath); 
+                    if (globalPlaylist.Find(fullPath) == globalPlaylist.Size()) globalPlaylist.Push(fullPath);
                 }
             }
         }
@@ -209,7 +209,7 @@ class DynamicMusicScanner : StaticEventHandler
     {
         ScanLoadedLumps();
         if (globalPlaylist.Size() == 0) return;
-        S_ChangeMusic("", 0, false); 
+        S_ChangeMusic("", 0, false);
         SwitchToNextTrack();
     }
     override void UiTick()
@@ -232,7 +232,7 @@ class DynamicMusicScanner : StaticEventHandler
             return;
         }
         checkTimer++;
-        if (checkTimer >= 35) 
+        if (checkTimer >= 35)
         {
             checkTimer = 0;
             if (MusPlaying.name == "")
@@ -251,7 +251,16 @@ class DynamicMusicScanner : StaticEventHandler
         if (playbackHistory.Size() > 50) playbackHistory.Delete(0);
         CVar shuffleCVar = CVar.FindCVar("music_player_shuffle");
         int isShuffle = shuffleCVar ? shuffleCVar.GetInt() : 0;
-        if (isShuffle == 1) currentTrackIndex = Random[MusicRand](0, globalPlaylist.Size() - 1);
+		if (isShuffle == 1)
+		{
+			int newIndex;
+			do
+			{
+			newIndex = Random(0, globalPlaylist.Size() - 1);
+			}
+			while (newIndex == currentTrackIndex && globalPlaylist.Size() > 1);
+			currentTrackIndex = newIndex;
+		}
         else
         {
             currentTrackIndex++;
@@ -281,9 +290,9 @@ class DynamicMusicScanner : StaticEventHandler
         string currentTrack = globalPlaylist[currentTrackIndex];
         S_ChangeMusic("", 0, false);
         bool isMidiTrack = (currentTrack.IndexOf(".mid") != -1 || currentTrack.IndexOf(".mus") != -1);
-        if (isMidiTrack) S_ChangeMusic(currentTrack, 0, true); 
-        else S_ChangeMusic(currentTrack, 0, false); 
-        justSwitchedDelay = 350; 
+        if (isMidiTrack) S_ChangeMusic(currentTrack, 0, true);
+        else S_ChangeMusic(currentTrack, 0, false);
+        justSwitchedDelay = 350;
         string trackName = currentTrack;
         int lastSlash = trackName.LastIndexOf("/");
         if (lastSlash != -1) trackName = trackName.Mid(lastSlash + 1);
@@ -301,7 +310,7 @@ class DynamicMusicScanner : StaticEventHandler
         else if (toastTimer < 15) yOffset = -50 * (1.0 - (double(toastTimer) / 15.0));
         string fullMessage = "Now Playing: " .. toastTrackName;
         Font clearFont = Font.GetFont("SMALLFONT");
-        if (clearFont == null) clearFont = SmallFont; 
+        if (clearFont == null) clearFont = SmallFont;
         int textWidth = clearFont.StringWidth(fullMessage);
         double drawX = (baseWidth / 2.0) - (textWidth / 2.0);
         double drawY = 20 + yOffset;
